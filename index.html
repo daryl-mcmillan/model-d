@@ -1,0 +1,78 @@
+<html>
+<head>
+<title>synth</title>
+<style>
+input.slider {
+	width: 300px;
+}
+</style>
+</head>
+
+<body>
+	frequency: <input id=f type="range" class=slider min=0 max=5 step=0.01
+				   ><br/>
+	frequency2: <input id=f2 type="range" class=slider min=-1 max=1 step=0.001
+				   ><br/>
+	frequency3: <input id=f3 type="range" class=slider min=-1 max=1 step=0.001
+				   ><br/>
+	lfo: <input id=l type="range" class=slider min=0.1 max=40 step=0.1
+				   ><br/>
+
+<script>
+document.body.onclick = async function() {
+	document.body.onclick = function() {};
+
+	const audio = new AudioContext();
+
+	const gain = new GainNode(audio);
+	gain.gain.value = 1;
+	gain.connect(audio.destination);
+
+	const osc = new OscillatorNode(audio);
+	osc.type = "sawtooth";
+	osc.frequency.value = 50;	
+	osc.connect(audio.destination);
+	osc.start();
+
+	const osc2 = new OscillatorNode(audio);
+	osc2.type = "sawtooth";
+	osc2.frequency.value = 51;	
+	osc2.connect(audio.destination);
+	osc2.start();
+
+	const osc3 = new OscillatorNode(audio);
+	osc3.type = "sawtooth";
+	osc3.frequency.value = 100;
+	osc3.connect(gain);
+	osc3.start();
+
+	const lfo = new OscillatorNode(audio);
+	lfo.type = "square";
+	lfo.frequency.value = 5;	
+	lfo.connect(gain.gain);
+	lfo.start();
+
+	var vtof = function(v) {
+		return Math.pow(2, v) * 27.5;
+	};
+
+	var f = document.getElementById("f");
+	var f2 = document.getElementById("f2");
+	var f3 = document.getElementById("f3");
+	var l = document.getElementById("l");
+	var setFrequency = function(val) {
+		var freq = vtof(f.value);
+		osc.frequency.value = vtof(f.valueAsNumber);
+		osc2.frequency.value = vtof(f.valueAsNumber+f2.valueAsNumber);
+		osc3.frequency.value = vtof(f.valueAsNumber+f3.valueAsNumber);
+	};
+	f.onmousemove = setFrequency;
+	f2.onmousemove = setFrequency;
+	f3.onmousemove = setFrequency;
+	l.onmousemove = function() {
+		lfo.frequency.value = l.valueAsNumber;
+	};
+}
+</script>
+</body>
+</html>
