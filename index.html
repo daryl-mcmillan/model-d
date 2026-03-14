@@ -9,14 +9,22 @@ input.slider {
 </head>
 
 <body>
-	frequency: <input id=f type="range" class=slider min=0 max=5 step=0.01
-				   ><br/>
-	frequency2: <input id=f2 type="range" class=slider min=-1 max=1 step=0.001
-				   ><br/>
-	frequency3: <input id=f3 type="range" class=slider min=-1 max=1 step=0.001
-				   ><br/>
-	lfo: <input id=l type="range" class=slider min=0.1 max=40 step=0.1
-				   ><br/>
+	<div>
+		<input id="f" type="range" class="slider" min="0" max="5" step="0.01" value="1.61">
+		<label for="f">frequency</label>
+	</div>
+	<div>
+		<input id="d1" type="range" class="slider" min="-1" max="1" step="0.001" value="-0.014">
+		<label for="d1">detune 1</label>
+	</div>
+	<div>
+		<input id="d2" type="range" class="slider" min="-1" max="1" step="0.001" value="1">
+		<label for="d2">detune 2</label>
+	</div>
+	<div>
+		<input id="l" type="range" class="slider" min="0.1" max="40" step="0.1" value="9.7">
+		<label for="l">lfo</label>
+	</div>
 
 <script>
 document.body.onclick = async function() {
@@ -47,7 +55,7 @@ document.body.onclick = async function() {
 	osc3.start();
 
 	const lfo = new OscillatorNode(audio);
-	lfo.type = "square";
+	lfo.type = "triangle";
 	lfo.frequency.value = 5;	
 	lfo.connect(gain.gain);
 	lfo.start();
@@ -57,20 +65,24 @@ document.body.onclick = async function() {
 	};
 
 	var f = document.getElementById("f");
-	var f2 = document.getElementById("f2");
-	var f3 = document.getElementById("f3");
+	var d1 = document.getElementById("d1");
+	var d2 = document.getElementById("d2");
 	var l = document.getElementById("l");
 	var updateAll = function(val) {
 		var freq = vtof(f.value);
 		osc.frequency.value = vtof(f.valueAsNumber);
-		osc2.frequency.value = vtof(f.valueAsNumber+f2.valueAsNumber);
-		osc3.frequency.value = vtof(f.valueAsNumber+f3.valueAsNumber);
+		osc2.frequency.value = vtof(f.valueAsNumber+d1.valueAsNumber);
+		osc3.frequency.value = vtof(f.valueAsNumber+d2.valueAsNumber);
 		lfo.frequency.value = l.valueAsNumber;
 	};
 	f.onmousemove = updateAll;
-	f2.onmousemove = updateAll;
-	f3.onmousemove = updateAll;
+	f.onchange = updateAll;
+	d1.onmousemove = updateAll;
+	d1.onchange = updateAll;
+	d2.onmousemove = updateAll;
+	d2.onchange = updateAll;
 	l.onmousemove = updateAll;
+	l.onchange = updateAll;
 
 	updateAll();
 }
