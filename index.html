@@ -60,18 +60,19 @@ document.body.onclick = async function() {
 	var f2 = document.getElementById("f2");
 	var f3 = document.getElementById("f3");
 	var l = document.getElementById("l");
-	var setFrequency = function(val) {
+	var updateAll = function(val) {
 		var freq = vtof(f.value);
 		osc.frequency.value = vtof(f.valueAsNumber);
 		osc2.frequency.value = vtof(f.valueAsNumber+f2.valueAsNumber);
 		osc3.frequency.value = vtof(f.valueAsNumber+f3.valueAsNumber);
-	};
-	f.onmousemove = setFrequency;
-	f2.onmousemove = setFrequency;
-	f3.onmousemove = setFrequency;
-	l.onmousemove = function() {
 		lfo.frequency.value = l.valueAsNumber;
 	};
+	f.onmousemove = updateAll;
+	f2.onmousemove = updateAll;
+	f3.onmousemove = updateAll;
+	l.onmousemove = updateAll;
+
+	updateAll();
 }
 </script>
 </body>
