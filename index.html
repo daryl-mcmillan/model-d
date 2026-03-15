@@ -75,14 +75,15 @@ document.body.onclick = async function() {
 		osc3.frequency.value = vtof(f.valueAsNumber+d2.valueAsNumber);
 		lfo.frequency.value = l.valueAsNumber;
 	};
-	f.onmousemove = updateAll;
-	f.onchange = updateAll;
-	d1.onmousemove = updateAll;
-	d1.onchange = updateAll;
-	d2.onmousemove = updateAll;
-	d2.onchange = updateAll;
-	l.onmousemove = updateAll;
-	l.onchange = updateAll;
+	var attachEvents = function( node ) {
+		node.onmousemove = updateAll;
+		node.onchange = updateAll;
+		node.ontouchmove = updateAll;
+	};
+	attachEvents(f);
+	attachEvents(d1);
+	attachEvents(d2);
+	attachEvents(l);
 
 	updateAll();
 }
