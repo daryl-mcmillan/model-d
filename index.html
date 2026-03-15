@@ -25,6 +25,14 @@ input.slider {
 		<input id="l" type="range" class="slider" min="0.1" max="40" step="0.1" value="9.7">
 		<label for="l">lfo</label>
 	</div>
+	<div>
+		<input id="ld" type="range" class="slider" min="0.0" max="1.0" step="0.001" value="0.1">
+		<label for="l">lfo depth</label>
+	</div>
+	<div>
+		<input id="cutoff" type="range" class="slider" min="-1.0" max="1.0" step="0.001" value="0.1">
+		<label for="l">filter cutoff</label>
+	</div>
 
 <script>
 document.body.onclick = async function() {
@@ -32,32 +40,62 @@ document.body.onclick = async function() {
 
 	const audio = new AudioContext();
 
-	const gain = new GainNode(audio);
-	gain.gain.value = 1;
-	gain.connect(audio.destination);
+	await audio.audioWorklet.addModule("filter.js");
+	const filter = new AudioWorkletNode(
+		audio,
+		"filter",
+		{
+			numberOfInputs: 1,
+			numberOfOutputs: 1,
+			outputChannelCount: [1]
+		}
+	);
+	const filterCutoff = filter.parameters.get("cutoff");
+	filter.connect( audio.destination );
+
+	const dest = filter;
 
 	const osc = new OscillatorNode(audio);
 	osc.type = "sawtooth";
 	osc.frequency.value = 50;	
-	osc.connect(audio.destination);
+	osc.connect(dest);
 	osc.start();
 
 	const osc2 = new OscillatorNode(audio);
 	osc2.type = "sawtooth";
 	osc2.frequency.value = 51;	
-	osc2.connect(audio.destination);
+	osc2.connect(dest);
 	osc2.start();
 
 	const osc3 = new OscillatorNode(audio);
 	osc3.type = "sawtooth";
 	osc3.frequency.value = 100;
-	osc3.connect(gain);
+	osc3.connect(dest);
 	osc3.start();
+
+	const lfodepth = new GainNode(audio);
+	lfodepth.gain.value = 1;
+	lfodepth.connect(filterCutoff);
 
 	const lfo = new OscillatorNode(audio);
 	lfo.type = "triangle";
-	lfo.frequency.value = 5;	
-	lfo.connect(gain.gain);
+	lfo.frequency.value = 5;
+	lfo.connect(lfodepth);
+	
+	await audio.audioWorklet.addModule("amount.js");
+	const filterDepth = new AudioWorkletNode(
+		audio,
+		"amount",
+		{
+			numberOfInputs: 0,
+			numberOfOutputs: 1,
+			outputChannelCount: [1]
+		}
+	);
+	const filterDepthParam = filterDepth.parameters.get("amount");
+	filterDepthParam.value = 1.0;
+	filterDepth.connect( filterCutoff );
+
 	lfo.start();
 
 	var vtof = function(v) {
@@ -68,12 +106,16 @@ document.body.onclick = async function() {
 	var d1 = document.getElementById("d1");
 	var d2 = document.getElementById("d2");
 	var l = document.getElementById("l");
+	var ld = document.getElementById("ld");
+	var cutoff = document.getElementById("cutoff");
 	var updateAll = function(val) {
 		var freq = vtof(f.value);
 		osc.frequency.value = vtof(f.valueAsNumber);
 		osc2.frequency.value = vtof(f.valueAsNumber+d1.valueAsNumber);
 		osc3.frequency.value = vtof(f.valueAsNumber+d2.valueAsNumber);
 		lfo.frequency.value = l.valueAsNumber;
+		lfodepth.gain.value = ld.valueAsNumber;
+		filterDepthParam.value = cutoff.valueAsNumber;
 	};
 	var attachEvents = function( node ) {
 		node.oninput = updateAll;
@@ -82,6 +124,8 @@ document.body.onclick = async function() {
 	attachEvents(d1);
 	attachEvents(d2);
 	attachEvents(l);
+	attachEvents(ld);
+	attachEvents(cutoff);
 
 	updateAll();
 }
