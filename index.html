@@ -76,9 +76,7 @@ document.body.onclick = async function() {
 		lfo.frequency.value = l.valueAsNumber;
 	};
 	var attachEvents = function( node ) {
-		node.onmousemove = updateAll;
-		node.onchange = updateAll;
-		node.ontouchmove = updateAll;
+		node.oninput = updateAll;
 	};
 	attachEvents(f);
 	attachEvents(d1);
