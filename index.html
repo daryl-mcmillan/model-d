@@ -40,8 +40,7 @@ input.slider {
 
 <script>
 
-document.body.onpointerdown = async function() {
-	document.body.onpointerdown = function() {};
+async function startup() {
 
 	const audio = new AudioContext();
 
@@ -151,6 +150,17 @@ document.body.onpointerdown = async function() {
 
 	updateAll();
 }
+
+var started = false;
+var startupHook = function() {
+	if( started ) return;
+	started = true;
+	startup();
+};
+
+document.body.onpointerdown = startupHook;
+document.body.oninput = startupHook;
+
 </script>
 </body>
 </html>
