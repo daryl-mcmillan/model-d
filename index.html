@@ -37,7 +37,10 @@ input.slider {
 		<input id="cutoffMod" type="checkbox" checked>
 		<label for="cutoffMod">filter modulation</label>
 	</div>
-<pre id="error"></pre>
+	<div>
+		<button id="start">start</button>
+	</div>
+	<pre id="error"></pre>
 
 <script>
 
@@ -151,7 +154,11 @@ async function startup() {
 	updateAll();
 }
 
+const startButton = document.getElementById("start");
+
 var asyncHook = async function() {
+	startButton.onclick = function() {};
+	startButton.disabled = true;
 	try {
 		await startup();
 	} catch( e ) {
@@ -159,15 +166,7 @@ var asyncHook = async function() {
 	}
 };
 
-var started = false;
-var startupHook = function() {
-	if( started ) return;
-	started = true;
-	asyncHook();
-};
-
-document.body.onpointerdown = startupHook;
-document.body.oninput = startupHook;
+startButton.onclick = asyncHook;
 
 </script>
 </body>
